@@ -69,3 +69,47 @@ def mix_rounds(v: List[int], m: List[int], rounds: int) -> None:
         c = rotr(v[2], 17) ^ v[0]
         d = rotr(v[3], 13) ^ v[1]
         v[0], v[1], v[2], v[3] = a, b, c, d
+        
+# ===== Hash funkcija =========================================================
+
+def pulse256(data: bytes) -> str:
+
+    data = pad_message(data)  # Pritaikom padding funkcija duomenims iki 32 baitu bloku
+
+    # Pradiniai skaiciai, pagaminti is konstantos C
+    s0 = 0x0123456789ABCDEF
+    s1 = (s0 * C + 1) & MASK64
+    s2 = (s1 * C + 1) & MASK64
+    s3 = (s2 * C + 1) & MASK64
+
+    sum_bytes = sum(data)  # visu baitu suma
+    # Pradine busena v (4 skaiciai), sumaisyta su ilgiu ir suma
+    v = [
+        s1 ^ len(data),                 
+        s2 ^ (len(data) << 1),          
+        s3 ^ (len(data) << 2),
+        (s1 ^ s2 ^ s3) ^ (sum_bytes & 0xFFFFFFFF),
+    ]
+
+    # Einam per kiekviena 32 baitu bloka
+    for off in range(0, len(data), 32):
+        block = data[off:off + 32]                          # vienas blokas
+        m = [u64_le(block[i*8:(i+1)*8]) for i in range(4)]  # padalinam i 4 skaicius
+        mix_rounds(v, m, 8)                                 # 8 round'ai maisymo
+
+    # Pabaigos papildomas maisymas (12 round'u su padirbtu fake_m)
+    for r_idx in range(12):
+        fake_m = [
+            v[(r_idx + 0) & 3] ^ (C * (r_idx + 1)),
+            v[(r_idx + 1) & 3],
+            v[(r_idx + 2) & 3],
+            v[(r_idx + 3) & 3],
+        ]
+        mix_rounds(v, fake_m, 1)  # pabaigoje dar karta sumaisom dubenis su fake_m
+
+    # Galutinis sujungimas
+    out_words = [v[0] ^ v[2], v[1] ^ v[3], v[0] ^ v[1], v[2] ^ v[3]]
+    out = b"".join(to_le8(x) for x in out_words)  # pavercia i baitus
+    return out.hex()  # grazina 64 hex simbolius (256 bitu hash)
+
+
