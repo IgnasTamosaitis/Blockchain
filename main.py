@@ -44,3 +44,28 @@ def pad_message(msg: bytes) -> bytes:
 
     out += bitlen.to_bytes(8, "little")  # gale irasom ilgi
     return bytes(out)
+
+# ===== Mixinimas ===========================================================
+
+def mix_rounds(v: List[int], m: List[int], rounds: int) -> None:
+    # v = 4 (state), m = 4 (bloko duomenys)
+
+    for r_idx in range(rounds):          # kartojam round'us (kiek kartu maisom)
+        for i in range(4):               # tvarkom kiekviena is 4 v 
+            # paimam m elementa (paslinkta pagal round'a) + pridedam konstanta (MC)
+            add = (m[(i + r_idx) & 3] + MC[i] * (r_idx + 1)) & MASK64
+
+            v[i] = (v[i] + add) & MASK64
+
+            # i kaimyna (kairini) supilam pasukta v[i] per R[i] bitu (XOR)
+            v[(i + 3) & 3] ^= rotr(v[i], R[i])
+
+            # padauginam is nelyginio (MC kitas)
+            v[i] = (v[i] * (MC[(i + 1) & 3] | 1)) & MASK64
+
+        # didelis sukimasis: sujungiame poras, kad viskas issimaisytu per v[0..3]
+        a = rotl(v[0], 32) ^ v[2]
+        b = rotl(v[1], 24) ^ v[3]
+        c = rotr(v[2], 17) ^ v[0]
+        d = rotr(v[3], 13) ^ v[1]
+        v[0], v[1], v[2], v[3] = a, b, c, d
