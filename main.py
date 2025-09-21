@@ -29,3 +29,18 @@ MC = [                  # 4 skirtingos maisymo konstantos
     0x85EBCA77C2B2AE63,
 ]
 R = [13, 17, 43, 29]    # kiek pasukti kiekviena zodi (v[0..3])
+
+# ===== Padding ==============================================================
+
+def pad_message(msg: bytes) -> bytes:
+  
+    bitlen = len(msg) * 8           # pradinio teksto ilgis bitais
+    out = bytearray(msg)            # kopija
+    out.append(0x80)                # pazymejimas: 1 bitas ir paskui nuliai
+
+    # Paliekam vietos 8 baitams galo ilgiui
+    while (len(out) + 8) % 32 != 0:
+        out.append(0x00)            # pildom nuliais iki 32*n - 8
+
+    out += bitlen.to_bytes(8, "little")  # gale irasom ilgi
+    return bytes(out)
