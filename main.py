@@ -112,4 +112,29 @@ def pulse256(data: bytes) -> str:
     out = b"".join(to_le8(x) for x in out_words)  # pavercia i baitus
     return out.hex()  # grazina 64 hex simbolius (256 bitu hash)
 
+# ===== Main ==================================================================
 
+def main(argv: List[str]) -> None:
+    # Meniu
+    print("1) Ivesti teksta ranka")
+    print("2) Nuskaityti is failo")
+    choice = input("Pasirink (1/2): ")
+
+    if choice == "1":
+        s = input("Ivesk teksta: ")
+        print("Hash:", pulse256(s.encode()))
+
+    elif choice == "2":
+        filename = input("Ivesk failo kelia: ")
+        try:
+            with open(filename, "rb") as f:
+                data = f.read()          # skaitom failo baitus
+            print("Hash:", pulse256(data))
+        except FileNotFoundError:
+            print("Klaida: failas nerastas.")
+
+    else:
+        print("Netinkamas pasirinkimas. Paleisk dar karta ir rinkis 1 arba 2.")
+
+if __name__ == "__main__":
+    main(sys.argv)
