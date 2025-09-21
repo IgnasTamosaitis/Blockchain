@@ -20,3 +20,12 @@ def to_le8(x: int) -> bytes:
     """Padaro 8 baitus"""
     return x.to_bytes(8, "little")  # pavercia i 8 baitus spausdinimui
 
+# ===== Konstantos maisymui =============================================================
+C = 0x9E3779B97F4A7C15  # golden ratio
+MC = [                  # 4 skirtingos maisymo konstantos
+    0xBF58476D1CE4E5B9,
+    0x94D049BB133111EB,
+    0xC2B2AE3D27D4EB4F,
+    0x85EBCA77C2B2AE63,
+]
+R = [13, 17, 43, 29]    # kiek pasukti kiekviena zodi (v[0..3])
