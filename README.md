@@ -2,7 +2,7 @@
 
 ## Reikalavimai
 
-Sukurta maišos funkcija **Pulse256** atitinka šiuos reikalavimus:
+Sukurta maišos funkcija atitinka šiuos reikalavimus:
 
 1. **Įėjimas (Input)**  
    - Maišos funkcijos įėjimas gali būti bet kokio dydžio simbolių eilutė (angl. string).
@@ -30,7 +30,7 @@ Sukurta maišos funkcija **Pulse256** atitinka šiuos reikalavimus:
 
 ## 1. Idėja (pseudo-kodas)
 
-
+```
 Funkcija (duomenys):
     1. Pridėti padding:
        - Prie pranešimo pridėti 0x80
@@ -59,6 +59,7 @@ Funkcija (duomenys):
        - Konvertuoti į 256 bitų hex eilutę
 
     Grąžinti: 64 simbolių hex eilutę
+```
 
 ## Testavimas
 
