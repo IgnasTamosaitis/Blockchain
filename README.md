@@ -30,7 +30,7 @@ Sukurta maišos funkcija **Pulse256** atitinka šiuos reikalavimus:
 
 ## 1. Idėja (pseudo-kodas)
 
-```text
+
 Funkcija (duomenys):
     1. Pridėti padding:
        - Prie pranešimo pridėti 0x80
@@ -68,7 +68,7 @@ Visi testai buvo atlikti **mažiausiai 5 kartus**, kad įsitikinti, jog rezultat
 
 **Pavyzdžiai:**
 
-| Įvestis | Pulse256 hash |
+| Įvestis | hash |
 |---------|---------------|
 | `a` | `0b6086d511d907929d5308232b0265288079ea232e978a71164a64d5144ce8cb` |
 | `Lietuva` | `af85a1e2c27d311d7b5fefbc72b76c245e689ed5c494d57e8ab2d08b745e8847` |
