@@ -160,9 +160,9 @@ def collision_test(lengths=None, pairs_per_length: int = 100000, save_file: bool
     print("\n----- Koliziju santrauka -----")
     print(f"Is viso poru:           {total_pairs:,}")
     print(f"Unikaliu hash'u:        {unique_hashes:,}")
-    print(f"Pasikartojanciu poru:   {duplicate_inputs:,}  (ne kolizijos)")
+    print(f"Pasikartojanciu poru:   {duplicate_inputs:,}  (nera koliziju)")
     print(f"Koliziju:               {collisions:,}")
-    print(f"Koliziju dagnis:        {collision_rate:.12f}")
+    print(f"Koliziju daznis:        {collision_rate:.12f}")
     if save_file:
         print(f"Poros issaugotos faile: {out_path}")
 
