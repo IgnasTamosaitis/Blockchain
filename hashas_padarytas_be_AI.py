@@ -14,3 +14,14 @@ def hash_string(text):
 
     # I baitus pavereciam
     data = text.encode("utf-8")
+
+
+def hash_file(fname):
+    try:
+        with open(fname, "r", encoding="utf-8") as f:
+            content = f.read()
+        hash_string(content)
+    except FileNotFoundError:
+        print("Failas nerastas.")
+
+
