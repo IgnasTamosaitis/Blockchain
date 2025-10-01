@@ -206,10 +206,17 @@ Visi testai buvo atlikti **mažiausiai 5 kartus**, kad įsitikinti, jog rezultat
 
 ---
 
-### Maišos funkcijos efektyvumas
-Maišos funkcijos efektyvumas buvo patikrintas įvairių ilgių įvestims.  
-(Galima pridėti screenshot’ą: ``)
+### Išvedimo dydis
 
+Patikrinome sugeneruotų hash reikšmių ilgį.
+Nepriklausomai nuo įvesties dydžio ar turinio, rezultatas visada yra tokio paties ilgio – 256 bitai (64 šešioliktainiai simboliai).
+
+Tai reiškia, kad tiek trumpas tekstas („b“), tiek ilgas failas sugeneruos vienodo ilgio hash eilutę, kas yra svarbi hash funkcijų savybė.
+
+**Pavyzdžiai:**
+
+`b raide: Hash: eb5cb7666affa01a358ed3e5c19c9bd6f7b1f85fece16b83bca79fa9eb345116`
+`Labas pasauli Hash: ef21208d8e89951116062f8eb8b3aa5f3f12532000228af305154d44c1480954`
 ---
 
 ### Kolizijos patikra
