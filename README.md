@@ -249,6 +249,24 @@ Rezultatai rodo, kad laikas auga proporcingai įvesties dydžiui – mažiems du
 
 ### Kolizijų paieška
 
+Atliktas testas su **400 000 hash porų**, siekiant įvertinti kolizijų tikimybę.
+
+**Rezultatai:**
+
+| Rodiklis                | Reikšmė     |
+|-------------------------|-------------|
+| Iš viso porų           | 400 000     |
+| Unikalių hash'ų        | 400 000     |
+| Pasikartojančių porų   | 0           |
+| Kolizijų               | 0           |
+| Kolizijų dažnis        | 0.000000000000 |
+
+**Papildoma informacija:**
+
+Poros buvo išsaugotos faile:  
+`poros.txt`
+
+Šie rezultatai rodo, kad testuotu mastu algoritmas nesukuria kolizijų ir generuoja unikalias reikšmes.
 ---
 
 ### Lavinos efektas
