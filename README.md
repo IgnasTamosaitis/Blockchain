@@ -263,10 +263,10 @@ Atliktas testas su **400 000 hash porų**, siekiant įvertinti kolizijų tikimyb
 
 **Papildoma informacija:**
 
-Poros buvo išsaugotos faile:  
-`poros.txt`
+Poros buvo išsaugotos faile `poros.txt`.
 
 Šie rezultatai rodo, kad testuotu mastu algoritmas nesukuria kolizijų ir generuoja unikalias reikšmes.
+
 ---
 
 ### Lavinos efektas
@@ -300,6 +300,27 @@ Rezultatai rodo, kad algoritmas pasižymi **stipriu lavinos efektu** – vidutin
 ---
 
 ### Negrįžtamumas
+
+Parinktys: a) Sukurti commitment (HASH(input + salt)) • b) Patikrinti commitment • c) Puzzle demo: bruteforce su / be salt
+
+**Puzzle demo (pasirinkta: c)**  
+PIN skaitmenų kiekis: `4` — Tikslinis PIN: `1043`  
+Be salt (bruteforce): Rasta `1043` per 0.0074 s, bandymų: 1,044  
+Su salt (NEŽINOMAS): paieškos erdvė ≈ `3.40e+42` kombinacijų — bruteforce praktiškai neįmanomas  
+Su žinomu salt: Rasta `1043` per 0.0397 s, bandymų: 1,044
+
+**Commitment patikrinimas (pasirinkta: b)**  
+Įvestys: input=`testavimas`, salt=`13`, commitment=`sdfsergth4wrw434ttrhfg`  
+Rezultatas: NE — Commitment neatitinka (neteisingas input arba salt).
+
+**Commitment (pavyzdys)**  
+Salt (hex): `0c685df3a13233d13d2c835ccf204d37`  
+Hash (C): `265f65a7f91867bf26be2ff2a2822b333215371c176daf65220484d31fd2dfb9`  
+Commitment failas: `c:\...\commitment.txt`
+
+Tas pats input, kitas salt: salt2=`586b3ca8806ce2833338b081a4ae4bff` → C2=`6cffd9d79500176617378a81cec49e5b4388652f3ecff62444abb8ca28f2d3d2`
+
+**Santrauka:** commitment = `HASH(input + salt)`. Be žinomo salto bruteforce neįmanomas dėl milžiniškos paieškos erdvės; su žinomu salt atkūrimas įmanomas.
 
 ---
 
