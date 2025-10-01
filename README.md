@@ -230,10 +230,12 @@ Hashavimo laikas proporcingai didėja pagal įvesties dydį. Mažos įvestys apd
 Pakeitus vieną simbolį, pasikeičia apie 50 % bitų ir apie 93 % hex simbolių. Tai rodo stiprų lavinos efektą.
 
 #### 5. Kolizijų paieška  
-Testuojant su 100 000 eilučių porų, kolizijų neaptikta. Hash reikšmės pasiskirstymas laikomas kokybišku.
+Testuojant su 400 000 eilučių porų, kolizijų neaptikta. Hash reikšmės pasiskirstymas laikomas kokybišku.
 
 #### 6. Negrįžtamumas  
 Hash reikšmės neleidžia atkurti pradinės įvesties. Funkcija yra vienkryptė ir saugi.
+
+---
 
 # Hash generatorius (AI sukurtas)
 
@@ -373,3 +375,194 @@ FUNKCIJA main(argv):
         SPAUSDINTI netinkamą pasirinkimą
 
 ```
+## Testavimas
+
+### Išvedimo dydis
+
+Patikrinome sugeneruotų hash reikšmių ilgį.
+Nepriklausomai nuo įvesties dydžio ar turinio, rezultatas visada yra tokio paties ilgio – 256 bitai (64 šešioliktainiai simboliai).
+
+Tai reiškia, kad tiek trumpas tekstas („b“), tiek ilgas failas sugeneruos vienodo ilgio hash eilutę, kas yra svarbi hash funkcijų savybė.
+
+##### Pavyzdžiai:
+
+| Įvestis | hash |
+|---------|---------------|
+| `b` raide Hash | `cb7bd3d2843f9653fde748267d33801a383b9b1086e9a9e00ea700e47fe5bfa9` |
+| `Labas pasauli` Hash| `c8fbc3bc202a7e2084ec05d4ce0a960365fc9e2cc2d2130b29eb58442cf2fb28` |
+
+---
+
+### Deterministiškumas
+Maišos funkcija yra deterministinė. Tai reiškia, kad sumaišius tą patį simbolį ar įvestį, rezultatas visada bus identiškas.  
+Visi testai buvo atlikti **mažiausiai 5 kartus**, kad įsitikinti, jog rezultatas nesikeičia.
+
+**Pavyzdžiai:**
+
+| Įvestis | hash |
+|---------|---------------|
+| `a` | `0b6086d511d907929d5308232b0265288079ea232e978a71164a64d5144ce8cb` |
+| `Lietuva` | `af85a1e2c27d311d7b5fefbc72b76c245e689ed5c494d57e8ab2d08b745e8847` |
+| `lietuva` | `9858b65e994943774a65512de21709938adab4510d7b339758e7532276257973` |
+| `lietuva!` | `56d8270c06daad42c9474a571ad6c7b0337e44e55f2e88dface129be4322e22d` |
+| `Lietuva!` | `b719f3f2adced7f5e3414d2a3ced4eb4f8043003a174fdd2ac5c8edb30576493` |
+
+---
+
+### Efektyvumas
+
+Norėdami įvertinti sukurto hash algoritmo našumą, atlikome eksperimentą su failu, kuriame yra 789 eilutės. Buvo matuojamas vidutinis hashavimo laikas, kai įvesties duomenų kiekis didinamas.
+
+Rezultatai rodo, kad laikas auga proporcingai įvesties dydžiui – mažiems duomenų kiekiams algoritmas veikia beveik akimirksniu, o didesnėms įvestims laikas išauga, tačiau išlieka pakankamai efektyvus.
+
+| Eilutės | Vidutinis laikas |
+|--------|-------------------|
+|1       |0.00009760 s       |
+|2       |0.00014218 s      |
+|4       |0.00017120 s     |
+|8       |0.00026540 s     |
+|16       |0.00063252 s     |
+|32       |0.00188246 s      |
+|64      |0.00219954 s     |
+|128       |0.00532882 s      |
+|256       |0.01183878 s     |
+|512       |0.02700818 s      |
+
+Žemiau pateiktas grafikas vizualiai parodo hashavimo laiko priklausomybę nuo eilučių skaičiaus
+
+![image](https://raw.githubusercontent.com/IgnasTamosaitis/Blockchain/refs/heads/v0.1/img/hash_ai_efekt.png)
+
+---
+
+### Kolizijų paieška
+
+Atliktas testas su **400 000 hash porų**, siekiant įvertinti kolizijų tikimybę.
+
+**Rezultatai:**
+
+| Rodiklis                | Reikšmė     |
+|-------------------------|-------------|
+| Iš viso porų           | 400 000     |
+| Unikalių hash'ų        | 400 000     |
+| Pasikartojančių porų   | 0           |
+| Kolizijų               | 0           |
+| Kolizijų dažnis        | 0.000000000000 |
+
+
+Išvada: per atliktą testą kolizijų nerasta — algoritmo rezultatai yra unikalūs.
+
+---
+
+### Lavinos efektas
+
+**Hash’ų procentinis „skirtingumas“ vieno simbolio pakeitimo atveju**
+
+Hash funkcijose svarbu, kad net pakeitus tik vieną simbolį įvestyje, gautas rezultatas ženkliai skirtųsi.
+
+Testavimui sugeneruota **100 000 eilučių porų**, kurios skiriasi tik vienu simboliu (eilutės ilgis – 64). Buvo palyginti gauti hash’ai.
+
+#### Rezultatai
+
+**Bitų lygyje (iš 256 bitų):**
+| Rodiklis | Reikšmė | Procentai |
+|----------|---------|-----------|
+| Min      | 92 bit  | 35.94 %   |
+| Max      | 162 bit | 63.28 %   |
+| Vidurkis | 128.01 bit | 50.00 % |
+
+**Hex lygyje (iš 64 simbolių):**
+| Rodiklis | Reikšmė | Procentai |
+|----------|---------|-----------|
+| Min      | 50 hex  | 78.12 %   |
+| Max      | 64 hex  | 100.00 %  |
+| Vidurkis | 60.01 hex | 93.76 % |
+
+#### Išvada
+
+Algoritmas turi **stiprų lavinos efektą** — pakeitus vieną simbolį, vidutiniškai puse bitų pasikeičia.
+
+
+---
+
+### Negrįžtamumas
+
+
+##### 1. Commitment (hiding) — pagrindiniai duomenys
+
+**Salt (hex):**  
+`1bcf908b0bd6a69636564db069a1f9c1`
+
+**Hash (C):**  
+`45d2525e5a63bd8fa516eed3451d2cd4ae5009225a778c7e4e94b5af45091d25`
+
+##### 2. Antras pavyzdys (tas pats input, kitas salt)
+
+**salt2:**  
+`eb8d4c0cba53966da4e9bb691cd39062`
+
+**C2:**  
+`e61c48736fb68f6122e3de63b0b149d6177bf878e2eee84fd3846e683de92ef8`
+
+> *Pastaba:* pakeitus salt, commitment (hash) keičiasi kardinaliai — tai demonstruoja binding ir uniqueness savybes.
+
+
+##### 3. Patikros pavyzdys (*su klaida*)
+
+**Iveskite zinute (input):**  
+`testavimas`
+
+**Iveskite salt (hex):**  
+`dawfrlhrfawdhg56465`
+
+**Iveskite commitment hash:**  
+`sadrge5r32445sftrh`
+
+**Patikros rezultatas:**  
+`NE ✗ Commitment neatitinka (neteisingas input arba salt).`
+
+> *Paaiškinimas:* pateiktas input arba salt neatitinka viešo hash —> verifikacija nepraeina.
+
+
+##### 4. PIN demonstracija
+
+**PIN skaitmenų kiekis:**  
+`4`
+
+**(Privati info DEMO) Tikslinis PIN:**  
+`1043`
+
+**Be salt — bruteforce rezultatas:**  
+`Be salt bruteforce rado PIN=1043 per 0.0472 s, bandymu: 1,044`  
+*(4 skaitmenų PIN → 10⁴ = 10000 kombinacijų — lengvai ištestuojama)*
+
+**Su salt, jei salt NEŽINOMAS:**  
+`Paieškos erdve ~ 3.40e+42 kombinacijų. Praktiskai neįmanoma bruteforce.`
+
+**Su ZINOMU salt — bruteforce rezultatas:**  
+`Su ZINOMU salt bruteforce rado PIN=1043 per 0.0644 s, bandymu: 1,044`  
+*(jei salt žinomas, brute-force vykdomas tik per PIN erdvę — randa greitai)*
+
+
+**Santrauka:** commitment = `HASH(input + salt)`. Be žinomo salto bruteforce neįmanomas dėl milžiniškos paieškos erdvės; su žinomu salt atkūrimas įmanomas.
+
+---
+
+## Išvados
+
+#### 1. Išvedimo dydis  
+Hash reikšmės ilgis visada išlieka vienodas – 256 bitai (64 hex simboliai), nepriklausomai nuo įvesties.
+
+#### 2. Deterministiškumas  
+Ta pati įvestis visada sukuria identišką hash reikšmę. Testai kartoti kelis kartus ir rezultatai nesikeitė.
+
+#### 3. Efektyvumas  
+Hashavimo laikas proporcingai didėja pagal įvesties dydį. Mažos įvestys apdorojamos akimirksniu, didesnės – pakankamai greitai.
+
+#### 4. Lavinos efektas  
+Pakeitus vieną simbolį, pasikeičia apie 49,78 % bitų ir apie 93,36 % hex simbolių. Tai rodo stiprų lavinos efektą.
+
+#### 5. Kolizijų paieška  
+Testuojant su 400 000 eilučių porų, kolizijų neaptikta. Hash reikšmės pasiskirstymas laikomas kokybišku.
+
+#### 6. Negrįžtamumas  
+Hash reikšmės neleidžia atkurti pradinės įvesties. Funkcija yra vienkryptė ir saugi.
