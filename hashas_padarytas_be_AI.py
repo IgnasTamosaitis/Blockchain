@@ -25,3 +25,16 @@ def hash_file(fname):
         print("Failas nerastas.")
 
 
+# Meniu
+while True:
+    opt = input("Ar norite hash'inti faila(1) ar string(2)? (Pasirinkite 1 arba 2, q-baigti): ").strip().lower()
+    if opt == '2':
+        txt = input("Iveskite teksta: ")
+        hash_string(txt)
+    elif opt == '1':
+        fn = input("Iveskite failo pavadinima: ")
+        hash_file(fn)
+    elif opt == 'q':
+        break
+    else:
+        print("Neteisinga ivestis")
