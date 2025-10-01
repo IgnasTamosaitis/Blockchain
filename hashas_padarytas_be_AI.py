@@ -280,7 +280,122 @@ def gen_salt(n_bytes: int = 16) -> str:
 def salted_hash(text: str, salt_hex: str) -> str:
     return hash_string(f"{text}|{salt_hex}")
 
+def commitment_create():
+    """
+    Sukuria isipareigojima (commitment):
+      salt := atsitiktinis
+      C := HASH(input + salt)
+    """
+    msg = input("Iveskite slapta zinute (input): ").strip()
+    nbytes_in = input("Kiek baitu salt? [16]: ").strip()
+    try:
+        nbytes = int(nbytes_in) if nbytes_in else 16
+    except ValueError:
+        nbytes = 16
 
+    salt = gen_salt(nbytes)
+    C = salted_hash(msg, salt)
+
+    print("\n--- Commitment (hiding) ---")
+    print("Salt (hex):", salt)
+    print("Hash (C):  ", C)
+
+    save = input("Išsaugoti į commitment.txt? (y/N): ").strip().lower() == "y"
+    if save:
+        outp = Path(__file__).parent / "commitment.txt"
+        with open(outp, "w", encoding="utf-8") as f:
+            f.write(f"message (NEsaugoti čia realybėje): {msg}\n")
+            f.write(f"salt_hex: {salt}\n")
+            f.write(f"commitment: {C}\n")
+        print("Išsaugota:", outp)
+
+    # Parodymas, kad tas pats input su skirtingais salt duoda skirtingus hash
+    salt2 = gen_salt(nbytes)
+    C2 = salted_hash(msg, salt2)
+    print("\nTas pats input, kitas salt → kitas hash:")
+    print("salt2:", salt2)
+    print("C2:   ", C2)
+
+def commitment_verify():
+    """
+    Patikrina įsipareigojimą:
+      duota (input, salt_hex, commitment) – ar HASH(input+salt) sutampa?
+    """
+    msg = input("Įveskite žinutę (input): ").strip()
+    salt_hex = input("Įveskite salt (hex): ").strip()
+    C = input("Įveskite commitment hash: ").strip()
+
+    C_chk = salted_hash(msg, salt_hex)
+    if C_chk == C:
+        print("OK ✓  Commitment teisingas.")
+    else:
+        print("NE ✓  Commitment neatitinka (neteisingas input arba salt).")
+
+def puzzle_demo():
+    """
+    Puzzle-friendliness demonstracija su maza paieskos erdve (PIN):
+    - Be salt 4 skaitmenu PIN galima subruteforcinti labai greitai.
+    - Su salt, jeigu salt nezinomas, paieskos erdve tampa milziniska.
+    - Jei salt zinomas, bruteforce islieka imanomas mazoms erdvems.
+    """
+    import random
+    rng = random.Random(42)
+
+    # Pasirenkam atsitiktini 4-skaitmeni PIN
+    pin_digits_in = input("PIN skaitmenų kiekis? [4]: ").strip()
+    try:
+        PIN_DIG = int(pin_digits_in) if pin_digits_in else 4
+    except ValueError:
+        PIN_DIG = 4
+
+    pin = "".join(str(rng.randrange(10)) for _ in range(PIN_DIG))
+    print(f"\n(Privati reiksme demonstracijai) Tikslinis PIN: {pin}")
+
+    # 1) Be salt – bruteforce
+    target = hash_string(pin)
+    start = time.perf_counter()
+    found = None
+    for i in range(10**PIN_DIG):
+        cand = f"{i:0{PIN_DIG}d}"
+        if hash_string(cand) == target:
+            found = cand
+            break
+    t1 = time.perf_counter() - start
+    print(f"Be salt bruteforce rado PIN={found} per {t1:.4f} s, bandymu: {i+1:,}")
+
+    # 2) Su salt, bet salt nezinomas – paieskos erdve milziniska
+    salt = gen_salt(16)  # 128-bit salt
+    target2 = salted_hash(pin, salt)
+    space = (10**PIN_DIG) * (1 << (8*16))  # PIN erdve * 2^(8*salt_bytes)
+    print("\nSu salt, jei salt NEZINOMAS (tik zinomas hash):")
+    print(f"- Paieskos erdve ≈ {space:.2e} kombinacijų (≈10^{(len(str(space))-1)}).")
+    print("- Praktikoje bruteforce be papildomos info – beprasmiskas.")
+
+    # 3) Su salt, kai salt ZINOMAS – bruteforce vis dar imanomas mazoms erdvems
+    start = time.perf_counter()
+    found2 = None
+    for i in range(10**PIN_DIG):
+        cand = f"{i:0{PIN_DIG}d}"
+        if salted_hash(cand, salt) == target2:
+            found2 = cand
+            break
+    t2 = time.perf_counter() - start
+    print(f"Su ZINOMU salt bruteforce rado PIN={found2} per {t2:.4f} s, bandymu: {i+1:,}")
+
+def hiding_menu():
+    print("\n--- Negriztamumo / Hiding / Puzzle demonstracija ---")
+    print("a) Sukurti commitment (HASH(input + salt))")
+    print("b) Patikrinti commitment")
+    print("c) Puzzle demo: bruteforce su/ be salt")
+    sub = input("Pasirinkite [a/b/c]: ").strip().lower()
+    if sub == "a":
+        commitment_create()
+    elif sub == "b":
+        commitment_verify()
+    elif sub == "c":
+        puzzle_demo()
+    else:
+        print("Neteisinga pasirinktis.")
 
 # =================================================
 # Meniu
