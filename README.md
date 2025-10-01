@@ -245,7 +245,11 @@ Rezultatai rodo, kad laikas auga proporcingai įvesties dydžiui – mažiems du
 
 ![image](https://raw.githubusercontent.com/IgnasTamosaitis/Blockchain/refs/heads/v0.1/img/foto_konst.png)
 
+---
+
 ### Kolizijų paieška
+
+---
 
 ### Lavinos efektas
 
@@ -275,9 +279,11 @@ Testavimui sugeneruota **100 000 eilučių porų**, kurios skiriasi tik vienu si
 
 Rezultatai rodo, kad algoritmas pasižymi **stipriu lavinos efektu** – vidutiniškai apie **pusė bitų** pasikeičia net ir pakeitus tik vieną įvesties simbolį.
 
+---
+
 ### Negrįžtamumas
 
-
+---
 
 ## Išvados
 
