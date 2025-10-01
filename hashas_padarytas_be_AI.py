@@ -63,7 +63,7 @@ def measure_times(filename, repeats=5):
         all_lines = f.readlines()
 
     n = len(all_lines)
-    print(f"Failas turi {n} eiluču.")
+    print(f"Failas turi {n} eiluciu.")
 
     sizes, times = [], []
     step = 1
@@ -101,7 +101,70 @@ def run_experiment():
 # =================================================
 # Koliziju paieska
 # =================================================
+def random_string(length: int, rng: random.Random) -> str:
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(rng.choices(alphabet, k=length))
 
+def collision_test(lengths=None, pairs_per_length: int = 100000, save_file: bool = False):
+    """
+    Generuoja poras (s1, s2), skaiciuoja hash'us su hash_string
+    ir parodo tikras kolizijas (skirtingos poros su tuo paciu hash).
+    Pasikartojancias identiskas poras (duplicate inputs) atskiria.
+    """
+    if lengths is None:
+        lengths = [10, 100, 500, 1000]
+
+    rng = random.Random() # Random(42)
+
+    # pasiruosti failui, jei prasyta saugoti
+    out_path = Path(__file__).parent / "poros.txt" if save_file else None
+    fout = None
+    if save_file:
+        fout = open(out_path, "w", encoding="utf-8")
+        print(f"Rasau poras i: {out_path}")
+
+    seen_hash_to_pair = {} # hash -> pirmoji (s1,s2)
+    collisions = 0
+    duplicate_inputs = 0
+    total_pairs = 0
+
+    for L in lengths:
+        if fout:
+            fout.write(f"=== Ilgis {L} ===\n")
+        for _ in range(pairs_per_length):
+            s1 = random_string(L, rng)
+            s2 = random_string(L, rng)
+            if fout:
+                fout.write(f"{s1} {s2}\n")
+
+            h = hash_string(s1 + "|" + s2)
+            total_pairs += 1
+
+            prev = seen_hash_to_pair.get(h)
+            if prev is None:
+                seen_hash_to_pair[h] = (s1, s2)
+            else:
+                if prev == (s1, s2):
+                    duplicate_inputs += 1 # ta pati pora -> ne kolizija
+                else:
+                    collisions += 1 # tikra kolizija
+        if fout:
+            fout.write("\n")
+    if fout:
+        fout.flush()
+        fout.close()
+
+    unique_hashes = len(seen_hash_to_pair)
+    collision_rate = collisions / total_pairs if total_pairs else 0.0
+
+    print("\n----- Koliziju santrauka -----")
+    print(f"Is viso poru:           {total_pairs:,}")
+    print(f"Unikaliu hash'u:        {unique_hashes:,}")
+    print(f"Pasikartojanciu poru:   {duplicate_inputs:,}  (ne kolizijos)")
+    print(f"Koliziju:               {collisions:,}")
+    print(f"Koliziju dagnis:        {collision_rate:.12f}")
+    if save_file:
+        print(f"Poros issaugotos faile: {out_path}")
 
 # =================================================
 # Meniu
