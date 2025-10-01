@@ -213,7 +213,7 @@ Nepriklausomai nuo įvesties dydžio ar turinio, rezultatas visada yra tokio pat
 
 Tai reiškia, kad tiek trumpas tekstas („b“), tiek ilgas failas sugeneruos vienodo ilgio hash eilutę, kas yra svarbi hash funkcijų savybė.
 
-**Pavyzdžiai:**
+##### Pavyzdžiai:
 
 ###### b raide Hash: ######
    eb5cb7666affa01a358ed3e5c19c9bd6f7b1f85fece16b83bca79fa9eb345116
