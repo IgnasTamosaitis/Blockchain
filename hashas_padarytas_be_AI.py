@@ -15,6 +15,33 @@ def hash_string(text):
     # I baitus pavereciam
     data = text.encode("utf-8")
 
+    # Masymas
+    for ch in data:
+        a ^= ch
+        a = rl(a, 7)
+        a = (a * 33 + (ch ^ (ch >> 2))) & MASK64
+
+        b ^= rl(ch, 11)
+        b = (b * 29 + (ch ^ (ch >> 4))) & MASK64
+
+        c ^= rl(ch, 19)
+        c = (c * 35 + (ch ^ (ch >> 6))) & MASK64
+
+        d ^= rl(ch, 23)
+        d = (d * 39 + (ch ^ (ch >> 8))) & MASK64
+
+    a ^= rl(b, 13);  a = (a + c) & MASK64
+    b ^= rl(c, 17); b = (b + d) & MASK64
+    c ^= rl(d, 29); c = (c + a) & MASK64
+    d ^= rl(a, 31); d = (d + b) & MASK64
+
+    # bitu -> hex
+    r1 = f"{a:016x}"
+    r2 = f"{b:016x}"
+    r3 = f"{c:016x}"
+    r4 = f"{d:016x}"
+    print("Hash:", r1 + r2 + r3 + r4)
+
 
 def hash_file(fname):
     try:
