@@ -266,7 +266,7 @@ Rezultatai rodo, kad laikas auga proporcingai įvesties dydžiui – mažiems du
 
 Žemiau pateiktas grafikas vizualiai parodo hashavimo laiko priklausomybę nuo eilučių skaičiaus
 
-![image]()
+![image](https://raw.githubusercontent.com/IgnasTamosaitis/Blockchain/refs/heads/v0.1/img/foto_konst.png)
 
 **Išvada:**  
 - Hash funkcija yra deterministinė.  
