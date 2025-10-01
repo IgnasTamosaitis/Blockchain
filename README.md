@@ -5,21 +5,19 @@
 Sukurta maišos funkcija atitinka šiuos reikalavimus:
 
 1. **Įėjimas (Input)**  
-   - Maišos funkcijos įėjimas gali būti bet kokio dydžio simbolių eilutė (angl. string).
+   - Priima bet kokio ilgio eilutę (string).
 
 2. **Išėjimas (Output)**  
-   - Maišos funkcijos išėjimas visuomet yra **fiksuoto dydžio** rezultatas.  
-   - Pageidautina: **256 bitų**, t. y. **64 simbolių hex** eilutė.
+   - Visada fiksuoto dydžio rezultatas – 256 bitų / 64 hex simboliai.
 
 3. **Deterministiškumas**  
-   - Maišos funkcija yra deterministinė.  
-   - Tam pačiam įvedimui (input) išvedimas (output) visuomet yra tas pats.
+   - Tam pačiam input visada gaunamas tas pats hash.
 
 4. **Efektyvumas**  
-   - Maišos reikšmė bet kokiai input reikšmei apskaičiuojama greitai ir efektyviai.
+   - Hash apskaičiuojamas greitai net su dideliais duomenimis.
 
 5. **Vienkryptiškumas (One-way)**  
-   - Iš hash rezultato praktiškai neįmanoma atgaminti pradinio įvedimo (input).
+   - Iš hash rezultato neįmanoma atgaminti pradinio įvedimo (input).
 
 6. **Atsparumas kolizijoms**  
    - Maišos funkcija yra atspari kolizijoms – labai mažai tikėtina, kad skirtingos įvestys duotų tą patį hash.
@@ -27,7 +25,10 @@ Sukurta maišos funkcija atitinka šiuos reikalavimus:
 7. **Lavinos efektas (Avalanche effect)**  
    - Bent minimaliai pakeitus įvedimą (pvz., vietoj `"Lietuva"` pateikus `"lietuva"`), hash rezultatas keičiasi **iš esmės**.
 
-## 1. Idėja (pseudo-kodas) be AI
+8. **Negrįžtamumo demonstracija (Hiding)**  
+    - Su „salt“ hash rezultatą beveik neįmanoma brute-force būdu susieti su input.
+
+## Idėja (pseudo-kodas) be AI
 
 ```
 Nustatome MASK64 = 2^64 - 1
@@ -77,116 +78,6 @@ PAGRINDINIS MENIU (ciklas):
         kitaip – išvesti klaidos pranešimą
 
 ```
-
-## 2. Idėja (pseudo-kodas) su AI
-
-```
-KONST MASK64 = 2^64 - 1
-KONST C = 0x9E3779B97F4A7C15
-KONST MC = [K0, K1, K2, K3]            // 4 maišymo konstantos
-KONST R  = [13, 17, 43, 29]            // rotacijų dydžiai v[0..3]
-
-FUNKCIJA rotl(x, r):
-    GRĄŽINTI ((x << r) ARBA (x >> (64 - r))) & MASK64
-
-FUNKCIJA rotr(x, r):
-    GRĄŽINTI ((x >> r) ARBA (x << (64 - r))) & MASK64
-
-FUNKCIJA u64_le(baitai[8]):
-    GRĄŽINTI skaičių iš 8 baitų (little-endian)
-
-FUNKCIJA to_le8(x):
-    GRĄŽINTI 8 baitus (little-endian) iš x
-
-// --- Padding ---
-FUNKCIJA pad_message(msg):
-    bitlen = msg.ilgis * 8
-    out = msg + 0x80
-    KOL (out.ilgis + 8) % 32 != 0:
-        out += 0x00
-    out += bitlen kaip 8 baitai (LE)
-    GRĄŽINTI out
-
-// --- Maišymo raundai ---
-FUNKCIJA mix_rounds(v[4], m[4], rounds):
-    UŽ r_idx NUO 0 IKI rounds-1:
-        UŽ i NUO 0 IKI 3:
-            add = ( m[(i + r_idx) mod 4] + MC[i] * (r_idx + 1) ) & MASK64
-            v[i] = (v[i] + add) & MASK64
-            v[(i - 1) mod 4] = v[(i - 1) mod 4] XOR rotr(v[i], R[i])
-            v[i] = ( v[i] * (MC[(i + 1) mod 4] ARBA 1) ) & MASK64
-
-        // „didysis sukimasis“ per poras
-        a = rotl(v[0], 32) XOR v[2]
-        b = rotl(v[1], 24) XOR v[3]
-        c = rotr(v[2], 17) XOR v[0]
-        d = rotr(v[3], 13) XOR v[1]
-        v = [a, b, c, d]
-
-// --- Pagrindinis hash ---
-FUNKCIJA (data):
-    data = pad_message(data)
-
-    // sėklos iš C
-    s0 = 0x0123456789ABCDEF
-    s1 = (s0 * C + 1) & MASK64
-    s2 = (s1 * C + 1) & MASK64
-    s3 = (s2 * C + 1) & MASK64
-
-    sum_bytes = visų data baitų suma (32 bitų)
-    v = [
-        s1 XOR data.ilgis,
-        s2 XOR (data.ilgis << 1),
-        s3 XOR (data.ilgis << 2),
-        (s1 XOR s2 XOR s3) XOR sum_bytes
-    ]
-
-    // apdorojame po 32 baitus
-    UŽ off NUO 0 ŽINGSNIS 32 IKI data.ilgis-32:
-        block = data[off : off+32]
-        m = [ u64_le(block[0:8]),
-              u64_le(block[8:16]),
-              u64_le(block[16:24]),
-              u64_le(block[24:32]) ]
-        mix_rounds(v, m, 8)
-
-    // finalinis „užrakinimas“ su fake_m (12 kartų)
-    UŽ r_idx NUO 0 IKI 11:
-        fake_m = [
-            v[(r_idx + 0) mod 4] XOR (C * (r_idx + 1)),
-            v[(r_idx + 1) mod 4],
-            v[(r_idx + 2) mod 4],
-            v[(r_idx + 3) mod 4]
-        ]
-        mix_rounds(v, fake_m, 1)
-
-    // išvesties žodžiai ir HEX
-    out_words = [ v[0] XOR v[2],  v[1] XOR v[3],
-                  v[0] XOR v[1],  v[2] XOR v[3] ]
-    out_bytes = sujungti to_le8(x) kiekvienam x iš out_words
-    GRĄŽINTI out_bytes kaip hex eilutę (64 simboliai)
-
-// --- Vartotojo sąsaja ---
-FUNKCIJA main(argv):
-    SPAUSDINTI "1) Ivesti teksta ranka"
-    SPAUSDINTI "2) Nuskaityti is failo"
-    choice = įvestis
-
-    JEI choice == "1":
-        s = įvestas tekstas
-        SPAUSDINTI "Hash:",( UTF-8(s) )
-    KITAIP JEI choice == "2":
-        filename = įvestas kelias
-        BANDYTI:
-            data = perskaityti failą kaip baitus
-            SPAUSDINTI "Hash:", (data)
-        JEI failas nerastas:
-            SPAUSDINTI klaidą
-    KITAIP:
-        SPAUSDINTI netinkamą pasirinkimą
-
-```
-
 
 ## Testavimas
 
@@ -344,3 +235,141 @@ Testuojant su 100 000 eilučių porų, kolizijų neaptikta. Hash reikšmės pasi
 #### 6. Negrįžtamumas  
 Hash reikšmės neleidžia atkurti pradinės įvesties. Funkcija yra vienkryptė ir saugi.
 
+# Hash generatorius (AI sukurtas)
+
+## Reikalavimai
+
+Sukurta maišos funkcija atitinka šiuos reikalavimus:
+
+1. **Įėjimas (Input)**  
+   - Priima bet kokio ilgio eilutę (string).
+
+2. **Išėjimas (Output)**  
+   - Visada fiksuoto dydžio rezultatas – 256 bitų / 64 hex simboliai.
+
+3. **Deterministiškumas**  
+   - Tam pačiam input visada gaunamas tas pats hash.
+
+4. **Efektyvumas**  
+   - Hash apskaičiuojamas greitai net su dideliais duomenimis.
+
+5. **Vienkryptiškumas (One-way)**  
+   - Iš hash rezultato neįmanoma atgaminti pradinio įvedimo (input).
+
+6. **Atsparumas kolizijoms**  
+   - Maišos funkcija yra atspari kolizijoms – labai mažai tikėtina, kad skirtingos įvestys duotų tą patį hash.
+
+7. **Lavinos efektas (Avalanche effect)**  
+   - Bent minimaliai pakeitus įvedimą (pvz., vietoj `"Lietuva"` pateikus `"lietuva"`), hash rezultatas keičiasi **iš esmės**.
+
+8. **Negrįžtamumo demonstracija (Hiding)**  
+    - Su „salt“ hash rezultatą beveik neįmanoma brute-force būdu susieti su input.
+
+## Idėja (pseudo-kodas) su AI
+
+```
+KONST MASK64 = 2^64 - 1
+KONST C = 0x9E3779B97F4A7C15
+KONST MC = [K0, K1, K2, K3]            // 4 maišymo konstantos
+KONST R  = [13, 17, 43, 29]            // rotacijų dydžiai v[0..3]
+
+FUNKCIJA rotl(x, r):
+    GRĄŽINTI ((x << r) ARBA (x >> (64 - r))) & MASK64
+
+FUNKCIJA rotr(x, r):
+    GRĄŽINTI ((x >> r) ARBA (x << (64 - r))) & MASK64
+
+FUNKCIJA u64_le(baitai[8]):
+    GRĄŽINTI skaičių iš 8 baitų (little-endian)
+
+FUNKCIJA to_le8(x):
+    GRĄŽINTI 8 baitus (little-endian) iš x
+
+// --- Padding ---
+FUNKCIJA pad_message(msg):
+    bitlen = msg.ilgis * 8
+    out = msg + 0x80
+    KOL (out.ilgis + 8) % 32 != 0:
+        out += 0x00
+    out += bitlen kaip 8 baitai (LE)
+    GRĄŽINTI out
+
+// --- Maišymo raundai ---
+FUNKCIJA mix_rounds(v[4], m[4], rounds):
+    UŽ r_idx NUO 0 IKI rounds-1:
+        UŽ i NUO 0 IKI 3:
+            add = ( m[(i + r_idx) mod 4] + MC[i] * (r_idx + 1) ) & MASK64
+            v[i] = (v[i] + add) & MASK64
+            v[(i - 1) mod 4] = v[(i - 1) mod 4] XOR rotr(v[i], R[i])
+            v[i] = ( v[i] * (MC[(i + 1) mod 4] ARBA 1) ) & MASK64
+
+        // „didysis sukimasis“ per poras
+        a = rotl(v[0], 32) XOR v[2]
+        b = rotl(v[1], 24) XOR v[3]
+        c = rotr(v[2], 17) XOR v[0]
+        d = rotr(v[3], 13) XOR v[1]
+        v = [a, b, c, d]
+
+// --- Pagrindinis hash ---
+FUNKCIJA (data):
+    data = pad_message(data)
+
+    // sėklos iš C
+    s0 = 0x0123456789ABCDEF
+    s1 = (s0 * C + 1) & MASK64
+    s2 = (s1 * C + 1) & MASK64
+    s3 = (s2 * C + 1) & MASK64
+
+    sum_bytes = visų data baitų suma (32 bitų)
+    v = [
+        s1 XOR data.ilgis,
+        s2 XOR (data.ilgis << 1),
+        s3 XOR (data.ilgis << 2),
+        (s1 XOR s2 XOR s3) XOR sum_bytes
+    ]
+
+    // apdorojame po 32 baitus
+    UŽ off NUO 0 ŽINGSNIS 32 IKI data.ilgis-32:
+        block = data[off : off+32]
+        m = [ u64_le(block[0:8]),
+              u64_le(block[8:16]),
+              u64_le(block[16:24]),
+              u64_le(block[24:32]) ]
+        mix_rounds(v, m, 8)
+
+    // finalinis „užrakinimas“ su fake_m (12 kartų)
+    UŽ r_idx NUO 0 IKI 11:
+        fake_m = [
+            v[(r_idx + 0) mod 4] XOR (C * (r_idx + 1)),
+            v[(r_idx + 1) mod 4],
+            v[(r_idx + 2) mod 4],
+            v[(r_idx + 3) mod 4]
+        ]
+        mix_rounds(v, fake_m, 1)
+
+    // išvesties žodžiai ir HEX
+    out_words = [ v[0] XOR v[2],  v[1] XOR v[3],
+                  v[0] XOR v[1],  v[2] XOR v[3] ]
+    out_bytes = sujungti to_le8(x) kiekvienam x iš out_words
+    GRĄŽINTI out_bytes kaip hex eilutę (64 simboliai)
+
+// --- Vartotojo sąsaja ---
+FUNKCIJA main(argv):
+    SPAUSDINTI "1) Ivesti teksta ranka"
+    SPAUSDINTI "2) Nuskaityti is failo"
+    choice = įvestis
+
+    JEI choice == "1":
+        s = įvestas tekstas
+        SPAUSDINTI "Hash:",( UTF-8(s) )
+    KITAIP JEI choice == "2":
+        filename = įvestas kelias
+        BANDYTI:
+            data = perskaityti failą kaip baitus
+            SPAUSDINTI "Hash:", (data)
+        JEI failas nerastas:
+            SPAUSDINTI klaidą
+    KITAIP:
+        SPAUSDINTI netinkamą pasirinkimą
+
+```
