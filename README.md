@@ -71,11 +71,11 @@ Visi testai buvo atlikti **mažiausiai 5 kartus**, kad įsitikinti, jog rezultat
 
 | Įvestis | hash |
 |---------|---------------|
-| `a` | `0b6086d511d907929d5308232b0265288079ea232e978a71164a64d5144ce8cb` |
-| `Lietuva` | `af85a1e2c27d311d7b5fefbc72b76c245e689ed5c494d57e8ab2d08b745e8847` |
-| `lietuva` | `9858b65e994943774a65512de21709938adab4510d7b339758e7532276257973` |
-| `lietuva!` | `56d8270c06daad42c9474a571ad6c7b0337e44e55f2e88dface129be4322e22d` |
-| `Lietuva!` | `b719f3f2adced7f5e3414d2a3ced4eb4f8043003a174fdd2ac5c8edb30576493` |
+| `a` | `eb5cb7661eb8f198358edb55871453e0ef41f85fc0e2bd0cf2ca3e5adb2c0921` |
+| `Lietuva` | `b00670949db6f3943db888e55ab78a05d2d593620ab1e733fc14316b925ab8fc` |
+| `lietuva` | `090c32eef6e281e80bf8c6104b1e500a47a9bbffde22f98cae77617155bcf9b4` |
+| `lietuva!` | `17085f6353d990e6173f47b84f42987853d040179b1c9ffbcfc6037cf20976f5` |
+| `Lietuva!` | `e7ba2c2b0d7500d06209c55bebd848ef066339a279eb0927872f282b1a16a9e8` |
 
 ---
 
