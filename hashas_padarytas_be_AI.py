@@ -1,3 +1,7 @@
+import time
+import matplotlib.python as plt
+from pathlib import Path
+
 MASK64 = (1 << 64) - 1
 
 def rl(x, r):
@@ -54,13 +58,21 @@ def hash_file(fname):
 
 # Meniu
 while True:
-    opt = input("Ar norite hash'inti faila(1) ar string(2)? (Pasirinkite 1 arba 2, q-baigti): ").strip().lower()
-    if opt == '2':
-        txt = input("Iveskite teksta: ")
-        hash_string(txt)
-    elif opt == '1':
+    print("\nPasirinkite veiksma:")
+    print("1 - Hash'inti faila")
+    print("2 - Hash'inti string")
+    print("3 - Paleisti efektyvumo testa su konstitucija.txt")
+    print("q - Baigti")
+
+    opt = input(">>> ").strip().lower()
+    if opt == '1':
         fn = input("Iveskite failo pavadinima: ")
         hash_file(fn)
+    elif opt == '2':
+        txt = input("Iveskite teksta: ")
+        print("Hash:", hash_string(txt))
+    elif opt == '3':
+        run_experiment()
     elif opt == 'q':
         break
     else:
