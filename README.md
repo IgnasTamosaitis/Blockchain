@@ -215,8 +215,10 @@ Tai reiškia, kad tiek trumpas tekstas („b“), tiek ilgas failas sugeneruos v
 
 **Pavyzdžiai:**
 
-`b raide: Hash: eb5cb7666affa01a358ed3e5c19c9bd6f7b1f85fece16b83bca79fa9eb345116`
-`Labas pasauli Hash: ef21208d8e89951116062f8eb8b3aa5f3f12532000228af305154d44c1480954`
+###### b raide Hash: ######
+   eb5cb7666affa01a358ed3e5c19c9bd6f7b1f85fece16b83bca79fa9eb345116
+###### Labas pasauli Hash: ######
+   ef21208d8e89951116062f8eb8b3aa5f3f12532000228af305154d44c1480954
 ---
 
 ### Kolizijos patikra
