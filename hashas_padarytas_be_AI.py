@@ -1,5 +1,5 @@
 import time
-import matplotlib.python as plt
+import matplotlib.pyplot as plt
 from pathlib import Path
 
 MASK64 = (1 << 64) - 1
@@ -39,13 +39,8 @@ def hash_string(text):
     c ^= rl(d, 29); c = (c + a) & MASK64
     d ^= rl(a, 31); d = (d + b) & MASK64
 
-    # bitu -> hex
-    r1 = f"{a:016x}"
-    r2 = f"{b:016x}"
-    r3 = f"{c:016x}"
-    r4 = f"{d:016x}"
-    print("Hash:", r1 + r2 + r3 + r4)
-
+    # bitu -> hex (kad neprintintu dvigubai)
+    return f"{a:016x}{b:016x}{c:016x}{d:016x}"
 
 def hash_file(fname):
     try:
@@ -55,6 +50,45 @@ def hash_file(fname):
     except FileNotFoundError:
         print("Failas nerastas.")
 
+def measure_times(filename, repeats=5):
+    with open(filename, "r", encoding="utf-8") as f:
+        all_lines = f.readlines()
+
+    n = len(all_lines)
+    print(f"Failas turi {n} eiluču.")
+
+    sizes, times = [], []
+    step = 1
+    while step <= n:
+        sizes.append(step)
+        elapsed_list = []
+        for _ in range(repeats):
+            subset = "".join(all_lines[:step])
+            start = time.perf_counter()
+            _ = hash_string(subset)
+            end = time.perf_counter()
+            elapsed_list.append(end - start)
+        avg = sum(elapsed_list) / repeats
+        times.append(avg)
+        print(f"Eiluciu: {step}, vidutinis laikas: {avg:.8f} s")
+        step *= 2
+    return sizes, times
+
+def run_experiment():
+    base_dir = Path(__file__).parent
+    fname = base_dir / "Files" / "konstitucija.txt"
+    if not fname.exists():
+        print("Failas konstitucija.txt nerastas salia programos.")
+        return
+    sizes, times = measure_times(fname, repeats=5)
+    plt.figure(figsize=(8,5))
+    plt.plot(sizes, times, marker="o")
+    plt.xscale("log", base=2)
+    plt.xlabel("Eiluciu skaicius (log2)")
+    plt.ylabel("Vidutinis hashavimo laikas (s)")
+    plt.title("Hashavimo efektyvumas (nuosavas algoritmas)")
+    plt.grid(True)
+    plt.show()
 
 # Meniu
 while True:
