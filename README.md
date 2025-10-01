@@ -245,6 +245,8 @@ Rezultatai rodo, kad laikas auga proporcingai įvesties dydžiui – mažiems du
 
 ![image](https://raw.githubusercontent.com/IgnasTamosaitis/Blockchain/refs/heads/v0.1/img/foto_konst.png)
 
+### Kolizijų paieška
+
 ### Lavinos efektas
 
 **Hash’ų procentinis „skirtingumas“ vieno simbolio pakeitimo atveju**
@@ -273,8 +275,27 @@ Testavimui sugeneruota **100 000 eilučių porų**, kurios skiriasi tik vienu si
 
 Rezultatai rodo, kad algoritmas pasižymi **stipriu lavinos efektu** – vidutiniškai apie **pusė bitų** pasikeičia net ir pakeitus tik vieną įvesties simbolį.
 
+### Negrįžtamumas
 
-**Išvada:**  
-- Hash funkcija yra deterministinė.  
-- Nedidelis įvesties pakeitimas lemia reikšmingą hash pokytį (lavinos efektas).  
-- Kolizijų testuose nerasta net tarp 100 000 eilučių porų, todėl funkcijos pasiskirstymas yra geras ir efektyvus.
+
+
+## Išvados
+
+#### 1. Išvedimo dydis  
+Hash reikšmės ilgis visada išlieka vienodas – 256 bitai (64 hex simboliai), nepriklausomai nuo įvesties.
+
+#### 2. Deterministiškumas  
+Ta pati įvestis visada sukuria identišką hash reikšmę. Testai kartoti kelis kartus ir rezultatai nesikeitė.
+
+#### 3. Efektyvumas  
+Hashavimo laikas proporcingai didėja pagal įvesties dydį. Mažos įvestys apdorojamos akimirksniu, didesnės – pakankamai greitai.
+
+#### 4. Lavinos efektas  
+Pakeitus vieną simbolį, pasikeičia apie 50 % bitų ir apie 93 % hex simbolių. Tai rodo stiprų lavinos efektą.
+
+#### 5. Kolizijų paieška  
+Testuojant su 100 000 eilučių porų, kolizijų neaptikta. Hash reikšmės pasiskirstymas laikomas kokybišku.
+
+#### 6. Negrįžtamumas  
+Hash reikšmės neleidžia atkurti pradinės įvesties. Funkcija yra vienkryptė ir saugi.
+
