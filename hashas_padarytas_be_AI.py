@@ -1,7 +1,12 @@
 import time
+import random
+import string
 import matplotlib.pyplot as plt
 from pathlib import Path
 
+# =================================================
+# Hash funkcija
+# =================================================
 MASK64 = (1 << 64) - 1
 
 def rl(x, r):
@@ -50,6 +55,9 @@ def hash_file(fname):
     except FileNotFoundError:
         print("Failas nerastas.")
 
+# =================================================
+# Efektyvumo matavimas (konstitucija.txt)
+# =================================================
 def measure_times(filename, repeats=5):
     with open(filename, "r", encoding="utf-8") as f:
         all_lines = f.readlines()
@@ -90,24 +98,47 @@ def run_experiment():
     plt.grid(True)
     plt.show()
 
-# Meniu
-while True:
-    print("\nPasirinkite veiksma:")
-    print("1 - Hash'inti faila")
-    print("2 - Hash'inti string")
-    print("3 - Paleisti efektyvumo testa su konstitucija.txt")
-    print("q - Baigti")
+# =================================================
+# Koliziju paieska
+# =================================================
 
-    opt = input(">>> ").strip().lower()
-    if opt == '1':
-        fn = input("Iveskite failo pavadinima: ")
-        hash_file(fn)
-    elif opt == '2':
-        txt = input("Iveskite teksta: ")
-        print("Hash:", hash_string(txt))
-    elif opt == '3':
-        run_experiment()
-    elif opt == 'q':
-        break
-    else:
-        print("Neteisinga ivestis")
+
+# =================================================
+# Meniu
+# =================================================
+def main_menu():
+    base = Path(__file__).parent
+    while True:
+        print("\nPasirinkite veiksma:")
+        print("1 - Hash'inti faila")
+        print("2 - Hash'inti string")
+        print("3 - Paleisti efektyvumo testa su Files/konstitucija.txt")
+        print("4 - Koliziju testas (generuoja poras ir skaiciuoja kolizijas)")
+        print("q - Baigti")
+
+        opt = input(">>> ").strip().lower()
+        if opt == '1':
+            fn = input("Iveskite failo kelia (pvz., Files/test.txt): ").strip()
+            path = (base / fn) if not Path(fn).is_absolute() else Path(fn)
+            hash_file(path)
+        elif opt == '2':
+            txt = input("Iveskite teksta: ")
+            print("Hash:", hash_string(txt))
+        elif opt == '3':
+            run_experiment()
+        elif opt == '4':
+            try:
+                p = input("Poru per ilgi (default 100000): ").strip()
+                pairs = int(p) if p else 100000
+            except ValueError:
+                pairs = 100000
+            save = input("Issaugoti poras i poros.txt? (t/n) [n]: ").strip().lower() == 't'
+            lengths = [10, 100, 500, 1000]
+            collision_test(lengths=lengths, pairs_per_length=pairs, save_file=save)
+        elif opt == 'q':
+            break
+        else:
+            print("Neteisinga ivestis")
+
+if __name__ == "__main__":
+    main_menu()
