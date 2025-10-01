@@ -167,6 +167,26 @@ def collision_test(lengths=None, pairs_per_length: int = 100000, save_file: bool
         print(f"Poros issaugotos faile: {out_path}")
 
 # =================================================
+# Lavinos efekto testas
+# =================================================
+def _rand_str(n, rng):
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(rng.choices(alphabet, k=n))
+
+def _mutate_one_char(s, rng):
+    """Grazina s, kur vienas simbolis pakeistas kitu (visada kitu)."""
+    if not s:
+        return "a"  # krastinis atvejis
+    idx = rng.randrange(len(s))
+    alphabet = string.ascii_letters + string.digits
+    old = s[idx]
+    # parenkam simboli, kuris != old
+    new = rng.choice(alphabet)
+    while new == old:
+        new = rng.choice(alphabet)
+    return s[:idx] + new + s[idx+1:]
+
+# =================================================
 # Meniu
 # =================================================
 def main_menu():
@@ -177,6 +197,7 @@ def main_menu():
         print("2 - Hash'inti string")
         print("3 - Paleisti efektyvumo testa su Files/konstitucija.txt")
         print("4 - Koliziju testas (generuoja poras ir skaiciuoja kolizijas)")
+        print("5 - Lavinos efekto testas (100k poru, skiriasi 1 simboliu)")
         print("q - Baigti")
 
         opt = input(">>> ").strip().lower()
@@ -198,6 +219,18 @@ def main_menu():
             save = input("Issaugoti poras i poros.txt? (t/n) [n]: ").strip().lower() == 't'
             lengths = [10, 100, 500, 1000]
             collision_test(lengths=lengths, pairs_per_length=pairs, save_file=save)
+        elif opt == '5':
+            try:
+                s = input("Kiek bandymų? [100000]: ").strip()
+                samples = int(s) if s else 100_000
+            except ValueError:
+                samples = 100_000
+            try:
+                l = input("Vienos eilutės ilgis? [64]: ").strip()
+                str_len = int(l) if l else 64
+            except ValueError:
+                str_len = 64
+            avalanche_test(samples=samples, str_len=str_len, seed=None)
         elif opt == 'q':
             break
         else:
