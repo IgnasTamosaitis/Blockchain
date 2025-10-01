@@ -3,6 +3,7 @@ import random
 import string
 import matplotlib.pyplot as plt
 from pathlib import Path
+import secrets
 
 # =================================================
 # Hash funkcija
@@ -270,6 +271,18 @@ def avalanche_test(samples=100_000, str_len=64, seed=None):
     print(f"  avg: {hex_avg:6.2f} hex ({hex_avg_pct:6.2f}%)")
 
 # =================================================
+# Negriztamumas
+# =================================================
+def gen_salt(n_bytes: int = 16) -> str:
+    """Grazina atsitiktini salt kaip hex (pvz., 16 baitų = 128 bitų)."""
+    return secrets.token_hex(n_bytes)
+
+def salted_hash(text: str, salt_hex: str) -> str:
+    return hash_string(f"{text}|{salt_hex}")
+
+
+
+# =================================================
 # Meniu
 # =================================================
 def main_menu():
@@ -281,6 +294,7 @@ def main_menu():
         print("3 - Paleisti efektyvumo testa su Files/konstitucija.txt")
         print("4 - Koliziju testas (generuoja poras ir skaiciuoja kolizijas)")
         print("5 - Lavinos efekto testas (100k poru, skiriasi 1 simboliu)")
+        print("6 - Negriztamumo (hiding/puzzle) demonstracija – HASH(input + salt)")
         print("q - Baigti")
 
         opt = input(">>> ").strip().lower()
@@ -314,6 +328,8 @@ def main_menu():
             except ValueError:
                 str_len = 64
             avalanche_test(samples=samples, str_len=str_len, seed=None)
+        elif opt == '6':
+            hiding_menu()
         elif opt == 'q':
             break
         else:
