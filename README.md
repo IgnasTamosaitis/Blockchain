@@ -199,8 +199,10 @@ Tai reiškia, kad tiek trumpas tekstas („b“), tiek ilgas failas sugeneruos v
 
 ##### Pavyzdžiai:
 
-|`b raide Hash`|`eb5cb7666affa01a358ed3e5c19c9bd6f7b1f85fece16b83bca79fa9eb345116`|
-|`Labas pasauli Hash`|`ef21208d8e89951116062f8eb8b3aa5f3f12532000228af305154d44c1480954`|
+| Įvestis | hash |
+|---------|---------------|
+| `b` raide Hash | `eb5cb7666affa01a358ed3e5c19c9bd6f7b1f85fece16b83bca79fa9eb345116` |
+| `Labas pasauli` Hash| `ef21208d8e89951116062f8eb8b3aa5f3f12532000228af305154d44c1480954` |
 
 ---
 
@@ -245,26 +247,32 @@ Rezultatai rodo, kad laikas auga proporcingai įvesties dydžiui – mažiems du
 
 ### Lavinos efektas
 
-**Hash’ų procentinis „skirtingumas“ vieno simbolio pakeitimo atveju:**
+**Hash’ų procentinis „skirtingumas“ vieno simbolio pakeitimo atveju**
 
-Hash funkcijose svarbu, kad net pakeitus tik vieną simbolį įvestyje, gautas rezultatas skirtųsi.
+Hash funkcijose svarbu, kad net pakeitus tik vieną simbolį įvestyje, gautas rezultatas ženkliai skirtųsi.
 
-Testavimui sugeneruota 100 000 eilučių porų, kurios skiriasi tik vienu simboliu (eilutės ilgis 64). Buvo palyginti gauti hash’ai:
+Testavimui sugeneruota **100 000 eilučių porų**, kurios skiriasi tik vienu simboliu (eilutės ilgis – 64). Buvo palyginti gauti hash’ai.
 
-| Rezultatai: |
-| Bitų lygyje (iš 256 bitų): |
-| Min: 61 bit (23.83 %) |
-| Max: 162 bit (63.28 %) |
-| Vidurkis: 127.44 bit (49.78 %) |
-| Hex lygyje (iš 64 simbolių): |
-| Min: 32 hex (50.00 %) |
-| Max: 64 hex (100.00 %) |
-| Vidurkis: 59.75 hex (93.36 %) |
+#### Rezultatai
 
-** Išvada: **
-* Rezultatai rodo, kad algoritmas pasižymi geru lavinos efektu – vidutiniškai apie pusė bitų skiriasi net ir pakeitus tik vieną įvesties simbolį. *
+**Bitų lygyje (iš 256 bitų):**
+| Rodiklis | Reikšmė | Procentai |
+|----------|---------|-----------|
+| Min      | 61 bit  | 23.83 %   |
+| Max      | 162 bit | 63.28 %   |
+| Vidurkis | 127.44 bit | 49.78 % |
 
----
+**Hex lygyje (iš 64 simbolių):**
+| Rodiklis | Reikšmė | Procentai |
+|----------|---------|-----------|
+| Min      | 32 hex  | 50.00 %   |
+| Max      | 64 hex  | 100.00 %  |
+| Vidurkis | 59.75 hex | 93.36 % |
+
+#### Išvada
+
+Rezultatai rodo, kad algoritmas pasižymi **stipriu lavinos efektu** – vidutiniškai apie **pusė bitų** pasikeičia net ir pakeitus tik vieną įvesties simbolį.
+
 
 **Išvada:**  
 - Hash funkcija yra deterministinė.  
