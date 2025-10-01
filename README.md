@@ -190,7 +190,21 @@ FUNKCIJA main(argv):
 
 ## Testavimas
 
-### Maišos funkcijos deterministinumas
+### Išvedimo dydis
+
+Patikrinome sugeneruotų hash reikšmių ilgį.
+Nepriklausomai nuo įvesties dydžio ar turinio, rezultatas visada yra tokio paties ilgio – 256 bitai (64 šešioliktainiai simboliai).
+
+Tai reiškia, kad tiek trumpas tekstas („b“), tiek ilgas failas sugeneruos vienodo ilgio hash eilutę, kas yra svarbi hash funkcijų savybė.
+
+##### Pavyzdžiai:
+
+|`b raide Hash`|`eb5cb7666affa01a358ed3e5c19c9bd6f7b1f85fece16b83bca79fa9eb345116`|
+|`Labas pasauli Hash`|`ef21208d8e89951116062f8eb8b3aa5f3f12532000228af305154d44c1480954`|
+
+---
+
+### Deterministiškumas
 Maišos funkcija yra deterministinė. Tai reiškia, kad sumaišius tą patį simbolį ar įvestį, rezultatas visada bus identiškas.  
 Visi testai buvo atlikti **mažiausiai 5 kartus**, kad įsitikinti, jog rezultatas nesikeičia.
 
@@ -203,54 +217,6 @@ Visi testai buvo atlikti **mažiausiai 5 kartus**, kad įsitikinti, jog rezultat
 | `lietuva` | `090c32eef6e281e80bf8c6104b1e500a47a9bbffde22f98cae77617155bcf9b4` |
 | `lietuva!` | `17085f6353d990e6173f47b84f42987853d040179b1c9ffbcfc6037cf20976f5` |
 | `Lietuva!` | `e7ba2c2b0d7500d06209c55bebd848ef066339a279eb0927872f282b1a16a9e8` |
-
----
-
-### Išvedimo dydis
-
-Patikrinome sugeneruotų hash reikšmių ilgį.
-Nepriklausomai nuo įvesties dydžio ar turinio, rezultatas visada yra tokio paties ilgio – 256 bitai (64 šešioliktainiai simboliai).
-
-Tai reiškia, kad tiek trumpas tekstas („b“), tiek ilgas failas sugeneruos vienodo ilgio hash eilutę, kas yra svarbi hash funkcijų savybė.
-
-##### Pavyzdžiai:
-
-###### b raide Hash: ######
-   eb5cb7666affa01a358ed3e5c19c9bd6f7b1f85fece16b83bca79fa9eb345116
-###### Labas pasauli Hash: ######
-   ef21208d8e89951116062f8eb8b3aa5f3f12532000228af305154d44c1480954
----
-
-### Kolizijos patikra
-Sugeneruota **100 000 eilučių porų**, skirtų kolizijų patikrai:
-
-- 25 000 porų, ilgis 10 simbolių  
-- 25 000 porų, ilgis 100 simbolių  
-- 25 000 porų, ilgis 500 simbolių  
-- 25 000 porų, ilgis 1000 simbolių  
-
-Rezultatas: **nei vienoje poroje maišos nesutapo**, kolizijų nerasta.
-
-**Rezultatų lentelė (vieno simbolio pakeitimas – hash skirtumai):**
-
-| Ilgis (simboliais) | Time taken to read data |
-|------------------|-----------------------|
-| 10 | 0 |
-| 100 | 0 |
-| 500 | 0 |
-| 1000 | 0 |
-
-**Hash’ų procentinis „skirtingumas“ vieno simbolio pakeitimo atveju:**
-
-| Metric | Value |
-|--------|-------|
-| Number of pairs | 50,000 |
-| Min Hex Difference | % |
-| Max Hex Difference | % |
-| Avg Hex Difference | % |
-| Min Bit Difference | % |
-| Max Bit Difference | % |
-| Avg Bit Difference | % |
 
 ---
 
@@ -276,6 +242,29 @@ Rezultatai rodo, kad laikas auga proporcingai įvesties dydžiui – mažiems du
 Žemiau pateiktas grafikas vizualiai parodo hashavimo laiko priklausomybę nuo eilučių skaičiaus
 
 ![image](https://raw.githubusercontent.com/IgnasTamosaitis/Blockchain/refs/heads/v0.1/img/foto_konst.png)
+
+### Lavinos efektas
+
+**Hash’ų procentinis „skirtingumas“ vieno simbolio pakeitimo atveju:**
+
+Hash funkcijose svarbu, kad net pakeitus tik vieną simbolį įvestyje, gautas rezultatas skirtųsi.
+
+Testavimui sugeneruota 100 000 eilučių porų, kurios skiriasi tik vienu simboliu (eilutės ilgis 64). Buvo palyginti gauti hash’ai:
+
+| Rezultatai: |
+| Bitų lygyje (iš 256 bitų): |
+| Min: 61 bit (23.83 %) |
+| Max: 162 bit (63.28 %) |
+| Vidurkis: 127.44 bit (49.78 %) |
+| Hex lygyje (iš 64 simbolių): |
+| Min: 32 hex (50.00 %) |
+| Max: 64 hex (100.00 %) |
+| Vidurkis: 59.75 hex (93.36 %) |
+
+** Išvada: **
+* Rezultatai rodo, kad algoritmas pasižymi geru lavinos efektu – vidutiniškai apie pusė bitų skiriasi net ir pakeitus tik vieną įvesties simbolį. *
+
+---
 
 **Išvada:**  
 - Hash funkcija yra deterministinė.  
