@@ -245,6 +245,29 @@ Rezultatas: **nei vienoje poroje maišos nesutapo**, kolizijų nerasta.
 
 ---
 
+### Efektyvumas
+
+Norėdami įvertinti sukurto hash algoritmo našumą, atlikome eksperimentą su failu, kuriame yra 789 eilutės. Buvo matuojamas vidutinis hashavimo laikas, kai įvesties duomenų kiekis didinamas.
+
+Rezultatai rodo, kad laikas auga proporcingai įvesties dydžiui – mažiems duomenų kiekiams algoritmas veikia beveik akimirksniu, o didesnėms įvestims laikas išauga, tačiau išlieka pakankamai efektyvus.
+
+| Eilutės | Vidutinis laikas |
+|--------|-------------------|
+|1       |0.00010566 s       |
+|2       |0.00016380 s      |
+|4       |0.00030824 s      |
+|8       |0.00054956 s      |
+|16       |0.00105876 s      |
+|32       |0.00246976 s      |
+|64      |0.00523430 s      |
+|128       |0.00882652 s      |
+|256       |0.02026248 s      |
+|512       |0.04499916 s      |
+
+Žemiau pateiktas grafikas vizualiai parodo hashavimo laiko priklausomybę nuo eilučių skaičiaus
+
+![image](https://raw.githubusercontent.com/IgnasTamosaitis/Blockchain/refs/heads/v0.1/img/foto_konst.png)
+
 **Išvada:**  
 - Hash funkcija yra deterministinė.  
 - Nedidelis įvesties pakeitimas lemia reikšmingą hash pokytį (lavinos efektas).  
