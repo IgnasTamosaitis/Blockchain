@@ -186,6 +186,89 @@ def _mutate_one_char(s, rng):
         new = rng.choice(alphabet)
     return s[:idx] + new + s[idx+1:]
 
+def _bits_diff_from_hex(h1, h2):
+    """Hamingo atstumas bitų lygmenyje tarp dviejų 64-hex (256 bitų) hash’ų."""
+    x = int(h1, 16) ^ int(h2, 16)
+    try:
+        return x.bit_count()
+    except AttributeError:
+        return bin(x).count("1")
+
+def _hex_diff(h1, h2):
+    """Kiek hex pozicijų skiriasi (0..64)."""
+    return sum(a != b for a, b in zip(h1, h2))
+
+def avalanche_test(samples=100_000, str_len=64, seed=None):
+    """
+    Sugeneruoja 'samples' porų (s1,s2). Kiekvienai porai sukuria
+    antrą porą, kuri skiriasi TIK vienu simboliu (s1 ARBA s2).
+    Matuoja skirtumą tarp hash’ų bitų ir hex lygmenyse.
+    Spausdina min/max/avg (ir procentais).
+    """
+    rng = random.Random(seed)
+
+    bits_min = 256
+    bits_max = 0
+    bits_sum = 0
+
+    hex_min = 64
+    hex_max = 0
+    hex_sum = 0
+
+    for _ in range(samples):
+        # bazinė pora
+        s1 = _rand_str(str_len, rng)
+        s2 = _rand_str(str_len, rng)
+
+        # poros hash
+        h1 = hash_string(s1 + "|" + s2)
+
+        # mutacija: pakeiciam VIENA simboli s1 arba s2
+        if rng.random() < 0.5:
+            s1m = _mutate_one_char(s1, rng)
+            s2m = s2
+        else:
+            s1m = s1
+            s2m = _mutate_one_char(s2, rng)
+
+        h2 = hash_string(s1m + "|" + s2m)
+
+        # skirtumai
+        bd = _bits_diff_from_hex(h1, h2)   # 0..256
+        hd = _hex_diff(h1, h2)             # 0..64
+
+        bits_sum += bd
+        hex_sum  += hd
+
+        if bd < bits_min: bits_min = bd
+        if bd > bits_max: bits_max = bd
+        if hd < hex_min:  hex_min  = hd
+        if hd > hex_max:  hex_max  = hd
+
+    # vidurkiai
+    bits_avg = bits_sum / samples
+    hex_avg  = hex_sum  / samples
+
+    # procentai
+    bits_min_pct = bits_min / 256 * 100
+    bits_max_pct = bits_max / 256 * 100
+    bits_avg_pct = bits_avg / 256 * 100
+
+    hex_min_pct  = hex_min  / 64 * 100
+    hex_max_pct  = hex_max  / 64 * 100
+    hex_avg_pct  = hex_avg  / 64 * 100
+
+    print("\n----- Lavinos efekto rezultatai -----")
+    print(f"Bandymu kiekis: {samples:,} | eilutes ilgis: {str_len}")
+    print("Bitu lygmuo (is 256 bitu):")
+    print(f"  min: {bits_min:3d} bit ({bits_min_pct:6.2f}%)")
+    print(f"  max: {bits_max:3d} bit ({bits_max_pct:6.2f}%)")
+    print(f"  avg: {bits_avg:6.2f} bit ({bits_avg_pct:6.2f}%)")
+    print("Hex lygmuo (is 64 hex simboliu):")
+    print(f"  min: {hex_min:2d} hex ({hex_min_pct:6.2f}%)")
+    print(f"  max: {hex_max:2d} hex ({hex_max_pct:6.2f}%)")
+    print(f"  avg: {hex_avg:6.2f} hex ({hex_avg_pct:6.2f}%)")
+
 # =================================================
 # Meniu
 # =================================================
